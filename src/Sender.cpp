@@ -25,12 +25,17 @@ bool Sender::configureHook()
 bool Sender::startHook()
 {
 	startTime = this->getSimulationTime();
+	RTT::log(RTT::Warning) << this->getName() << "started" << RTT::endlog();
 	return true;
 }
 
 void Sender::updateHook()
 {
+	RTT::log(RTT::Warning) << this->getName() << "update start" << RTT::endlog();
+	out_Sender_var = getSimulationTime();
 	out_Sender_port.write(out_Sender_var);
+	RTT::log(RTT::Warning) << this->getName() << "   SEND > " << out_Sender_var << RTT::endlog();
+	RTT::log(RTT::Warning) << this->getName() << "update end" << RTT::endlog();
 }
 
 void Sender::stopHook()

@@ -26,11 +26,11 @@ public:
   bool portsArePrepared;
 
 private:
-  RTT::InputPort<int> in_port;
+  RTT::InputPort<double> in_port;
 
   RTT::FlowStatus in_flow;
 
-  int in_var;
+  double in_var;
 
   double startTime;
 };

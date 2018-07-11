@@ -19,44 +19,66 @@ Master::Master(std::string const &name) : RTT::TaskContext(name), portsArePrepar
 
 bool Master::configureHook()
 {
-	// TODO get Peers and set SlaveActivity for them!
-
-	// RTT::TaskContext *new_block = this->getPeer(block_name);
-	// // Set the block's activity to be a slave to the scheme's
-	// new_block->setActivity(
-	// 	new RTT::extras::SlaveActivity(
-	// 		this->getActivity(),
-	// 		new_block->engine()));
-
+	std::vector<std::string> peerList = this->getPeerList();
+	for (auto peerName : peerList)
+	{
+		RTT::TaskContext *new_block = this->getPeer(peerName);
+		if (new_block)
+		{
+			RTT::log(RTT::Warning) << this->getName() << " set SLAVE activity for " << peerName << RTT::endlog();
+			new_block->setActivity(
+				new RTT::extras::SlaveActivity(
+					this->getActivity(),
+					new_block->engine()));
+			tcList.push_back(new_block);
+		}
+	}
+	R = this->getPeer("R");
+	S = this->getPeer("S");
 	return true;
 }
 
 bool Master::startHook()
 {
 	startTime = this->getSimulationTime();
+	RTT::log(RTT::Warning) << this->getName() << "started" << RTT::endlog();
 	return true;
 }
 
 void Master::updateHook()
 {
 
-	RTT::log(RTT::Error) << this->getName() << " >> in_A_var: " << in_A_var << ", in_B_var: " << in_B_var << RTT::endlog();
+	RTT::log(RTT::Warning) << this->getName() << "update start" << RTT::endlog();
 
-	out_nAB_port.write(!(in_A_var && in_B_var));
-
-	// In this case it also works if connections are lost!
-	in_A_flow = in_A_port.read(in_A_var);
-	in_B_flow = in_B_port.read(in_B_var);
-
-	if (in_A_flow == RTT::NoData)
+	// out_nAB_port.write(!(in_A_var && in_B_var));
+	// for (RTT::TaskContext *tc : tcList)
+	// {
+	// 	tc->update();
+	// }
+	if (S)
 	{
-		in_A_var = false;
+		S->update();
+		// S->trigger();
 	}
-
-	if (in_B_flow == RTT::NoData)
+	if (R)
 	{
-		in_B_var = false;
+		R->update();
+		// R->trigger();
 	}
+	// // In this case it also works if connections are lost!
+	// in_A_flow = in_A_port.read(in_A_var);
+	// in_B_flow = in_B_port.read(in_B_var);
+
+	// if (in_A_flow == RTT::NoData)
+	// {
+	// 	in_A_var = false;
+	// }
+
+	// if (in_B_flow == RTT::NoData)
+	// {
+	// 	in_B_var = false;
+	// }
+	RTT::log(RTT::Warning) << this->getName() << "update end" << RTT::endlog();
 }
 
 void Master::stopHook()

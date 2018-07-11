@@ -14,32 +14,36 @@
 
 class Master : public RTT::TaskContext
 {
-  public:
-    Master(std::string const &name);
+public:
+  Master(std::string const &name);
 
-    bool configureHook();
-    bool startHook();
-    void updateHook();
-    void stopHook();
-    void cleanupHook();
+  bool configureHook();
+  bool startHook();
+  void updateHook();
+  void stopHook();
+  void cleanupHook();
 
-    double getSimulationTime();
-    void preparePorts();
-    bool portsArePrepared;
+  double getSimulationTime();
+  void preparePorts();
+  bool portsArePrepared;
 
-  private:
-    RTT::InputPort<bool> in_A_port;
-    RTT::InputPort<bool> in_B_port;
+private:
+  RTT::InputPort<bool> in_A_port;
+  RTT::InputPort<bool> in_B_port;
 
-    RTT::FlowStatus in_A_flow;
-    RTT::FlowStatus in_B_flow;
+  RTT::FlowStatus in_A_flow;
+  RTT::FlowStatus in_B_flow;
 
-    RTT::OutputPort<bool> out_nAB_port;
+  RTT::OutputPort<bool> out_nAB_port;
 
-    bool in_A_var;
-    bool in_B_var;
+  bool in_A_var;
+  bool in_B_var;
 
-    bool out_nAB_var;
+  bool out_nAB_var;
 
-    double startTime;
+  double startTime;
+
+  std::vector<RTT::TaskContext *> tcList;
+  RTT::TaskContext *R;
+  RTT::TaskContext *S;
 };

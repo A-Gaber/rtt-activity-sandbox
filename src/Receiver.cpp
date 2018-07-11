@@ -16,19 +16,38 @@ Receiver::Receiver(std::string const &name) : RTT::TaskContext(name), portsArePr
 
 bool Receiver::configureHook()
 {
-
+	if (!portsArePrepared)
+	{
+		preparePorts();
+	}
 	return true;
 }
 
 bool Receiver::startHook()
 {
 	startTime = this->getSimulationTime();
+	RTT::log(RTT::Warning) << this->getName() << "started" << RTT::endlog();
 	return true;
 }
 
 void Receiver::updateHook()
 {
+	RTT::log(RTT::Warning) << this->getName() << "update start" << RTT::endlog();
 	in_flow = in_port.read(in_var);
+	if (in_flow == RTT::NoData)
+	{
+		RTT::log(RTT::Warning) << this->getName() << "    NOO > " << RTT::endlog();
+	}
+	else if (in_flow == RTT::OldData)
+	{
+		RTT::log(RTT::Warning) << this->getName() << "    OLD > " << in_var << RTT::endlog();
+	}
+	else if (in_flow == RTT::NewData)
+	{
+		RTT::log(RTT::Warning) << this->getName() << "    NEW > " << in_var << RTT::endlog();
+	}
+
+	RTT::log(RTT::Warning) << this->getName() << "update end" << RTT::endlog();
 }
 
 void Receiver::stopHook()

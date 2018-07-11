@@ -26,9 +26,9 @@ public:
   bool portsArePrepared;
 
 private:
-  RTT::OutputPort<int> out_Sender_port;
+  RTT::OutputPort<double> out_Sender_port;
 
-  int out_Sender_var;
+  double out_Sender_var;
 
   double startTime;
 };
