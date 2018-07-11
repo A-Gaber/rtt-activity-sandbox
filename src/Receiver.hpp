@@ -33,4 +33,5 @@ private:
   double in_var;
 
   double startTime;
+  double startUpdateTime;
 };

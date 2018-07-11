@@ -57,13 +57,25 @@ void Master::updateHook()
 	// }
 	if (S)
 	{
+		// TODO seems like update() is blocking...!
 		S->update();
+
+		// With own Activities and this line below we can have a non-blocking parallel execution
 		// S->trigger();
+		// S->getActivity()->start();
+
+		// With own Activities and this line below we can have a sequential execution
+		// S->engine()->activate();
 	}
 	if (R)
 	{
 		R->update();
+
+		// With own Activities and this line below we can have a non-blocking parallel execution
 		// R->trigger();
+		// R->getActivity()->start();
+
+		// With own Activities and this line below we can have a sequential execution
 	}
 	// // In this case it also works if connections are lost!
 	// in_A_flow = in_A_port.read(in_A_var);

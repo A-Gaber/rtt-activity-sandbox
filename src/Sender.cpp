@@ -31,7 +31,13 @@ bool Sender::startHook()
 
 void Sender::updateHook()
 {
-	RTT::log(RTT::Warning) << this->getName() << "update start" << RTT::endlog();
+	// startUpdateTime = getSimulationTime();
+	RTT::log(RTT::Warning)
+		<< this->getName() << "update start" << RTT::endlog();
+	// while ((getSimulationTime() - startUpdateTime) < 0.5)
+	// {
+	// 	// RTT::log(RTT::Warning) << this->getName() << " 0.3 >= " << (getSimulationTime() - startUpdateTime) << RTT::endlog();
+	// }
 	out_Sender_var = getSimulationTime();
 	out_Sender_port.write(out_Sender_var);
 	RTT::log(RTT::Warning) << this->getName() << "   SEND > " << out_Sender_var << RTT::endlog();

@@ -4,7 +4,7 @@ loadComponent("M", "Master")
 setActivityOnCPU("M", 1, 5, ORO_SCHED_OTHER, 0)
 
 loadComponent("M2", "Master")
-setActivityOnCPU("M2", 1, 5, ORO_SCHED_OTHER, 1)
+setActivityOnCPU("M2", 0.1, 5, ORO_SCHED_OTHER, 1)
 
 loadComponent("S", "Sender")
 #setActivityOnCPU("S", 0, 5, ORO_SCHED_OTHER, 0)
@@ -18,8 +18,8 @@ R.configure()
 var ConnPolicy cp
 connect("S.out_port", "R.in_port", cp)
 
-addPeer("M", "S")
-addPeer("M2", "R")
+addPeer("M2", "S")
+addPeer("M", "R")
 M.configure()
 M2.configure()
 

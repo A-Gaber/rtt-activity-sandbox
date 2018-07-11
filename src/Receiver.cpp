@@ -32,19 +32,40 @@ bool Receiver::startHook()
 
 void Receiver::updateHook()
 {
+	startUpdateTime = getSimulationTime();
 	RTT::log(RTT::Warning) << this->getName() << "update start" << RTT::endlog();
+
 	in_flow = in_port.read(in_var);
 	if (in_flow == RTT::NoData)
 	{
-		RTT::log(RTT::Warning) << this->getName() << "    NOO > " << RTT::endlog();
+		RTT::log(RTT::Warning) << this->getName() << "    1 NOO > " << RTT::endlog();
 	}
 	else if (in_flow == RTT::OldData)
 	{
-		RTT::log(RTT::Warning) << this->getName() << "    OLD > " << in_var << RTT::endlog();
+		RTT::log(RTT::Warning) << this->getName() << "    1 OLD > " << in_var << RTT::endlog();
 	}
 	else if (in_flow == RTT::NewData)
 	{
-		RTT::log(RTT::Warning) << this->getName() << "    NEW > " << in_var << RTT::endlog();
+		RTT::log(RTT::Warning) << this->getName() << "    1 NEW > " << in_var << RTT::endlog();
+	}
+
+	while ((getSimulationTime() - startUpdateTime) < 0.7)
+	{
+		// RTT::log(RTT::Warning) << this->getName() << " 0.3 >= " << (getSimulationTime() - startUpdateTime) << RTT::endlog();
+	}
+
+	in_flow = in_port.read(in_var);
+	if (in_flow == RTT::NoData)
+	{
+		RTT::log(RTT::Warning) << this->getName() << "    2 NOO > " << RTT::endlog();
+	}
+	else if (in_flow == RTT::OldData)
+	{
+		RTT::log(RTT::Warning) << this->getName() << "    2 OLD > " << in_var << RTT::endlog();
+	}
+	else if (in_flow == RTT::NewData)
+	{
+		RTT::log(RTT::Warning) << this->getName() << "    2 NEW > " << in_var << RTT::endlog();
 	}
 
 	RTT::log(RTT::Warning) << this->getName() << "update end" << RTT::endlog();

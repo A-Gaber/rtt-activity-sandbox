@@ -31,4 +31,5 @@ private:
   double out_Sender_var;
 
   double startTime;
+  double startUpdateTime;
 };
