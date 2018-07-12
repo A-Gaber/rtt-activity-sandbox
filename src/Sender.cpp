@@ -15,6 +15,7 @@ Sender::Sender(std::string const &name) : RTT::TaskContext(name), portsArePrepar
 
 bool Sender::configureHook()
 {
+	counter = 0;
 	if (!portsArePrepared)
 	{
 		preparePorts();
@@ -38,7 +39,13 @@ void Sender::updateHook()
 	// {
 	// 	// RTT::log(RTT::Warning) << this->getName() << " 0.3 >= " << (getSimulationTime() - startUpdateTime) << RTT::endlog();
 	// }
-	out_Sender_var = getSimulationTime();
+	// out_Sender_var = getSimulationTime();
+	counter++;
+	if (counter >= 10)
+	{
+		counter = 0;
+	}
+	out_Sender_var = counter;
 	out_Sender_port.write(out_Sender_var);
 	RTT::log(RTT::Warning) << this->getName() << "   SEND > " << out_Sender_var << RTT::endlog();
 	RTT::log(RTT::Warning) << this->getName() << "update end" << RTT::endlog();

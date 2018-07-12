@@ -32,4 +32,5 @@ private:
 
   double startTime;
   double startUpdateTime;
+  int counter;
 };
