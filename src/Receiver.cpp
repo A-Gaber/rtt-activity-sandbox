@@ -83,7 +83,9 @@ void Receiver::preparePorts()
 {
 	in_port.setName("in_port");
 	in_port.doc("Input port");
-	ports()->addPort(in_port);
+	// Adding a callbaqck here does not make much sense, since user callbacks are only executed in the updateHook,
+	// and since we do not consider the input as valid for triggering, the update will never be called, also because we are already in the updateHook()!
+	ports()->addEventPort(in_port);
 	in_flow = RTT::NoData;
 
 	portsArePrepared = true;
@@ -93,6 +95,23 @@ double Receiver::getSimulationTime()
 {
 	return 1E-9 * RTT::os::TimeService::ticks2nsecs(
 					  RTT::os::TimeService::Instance()->getTicks());
+}
+
+// ACCORDING TO THIS, A TRIGGER ONLY HAPPENS IF dataOnPortHook returns true
+//
+// void TaskContext::dataOnPort(PortInterface *port)
+// {
+// 	if (this->dataOnPortHook(port))
+// 	{
+// 		portqueue->enqueue(port);
+// 		this->getActivity()->trigger();
+// 	}
+// }
+bool Receiver::dataOnPortHook(RTT::base::PortInterface *port)
+{
+	//ONLY THE EVENT PORTS...
+	RTT::log(RTT::Warning) << this->getName() << " RECEIVED DATA ON PORT " << port->getName() << RTT::endlog();
+	return false; // Like this, we are going to ignore the input and do not trigger execution!
 }
 
 // This macro, as you can see, creates the component. Every component should have this!

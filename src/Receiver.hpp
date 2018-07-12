@@ -21,6 +21,9 @@ public:
   void stopHook();
   void cleanupHook();
 
+  // test
+  bool dataOnPortHook(RTT::base::PortInterface *port);
+
   double getSimulationTime();
   void preparePorts();
   bool portsArePrepared;
