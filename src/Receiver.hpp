@@ -10,16 +10,19 @@
 #include <rtt/TaskContext.hpp>
 #include <string>
 
-class Receiver : public RTT::TaskContext
+// header for introspection
+#include <rtt-core-extensions/rtt-introspection-base.hpp>
+
+class Receiver : public cogimon::RTTIntrospectionBase
 {
 public:
   Receiver(std::string const &name);
 
-  bool configureHook();
-  bool startHook();
-  void updateHook();
-  void stopHook();
-  void cleanupHook();
+  bool configureHookInternal();
+  bool startHookInternal();
+  void updateHookInternal();
+  void stopHookInternal();
+  void cleanupHookInternal();
 
   // test
   bool dataOnPortHook(RTT::base::PortInterface *port);
@@ -32,6 +35,9 @@ private:
   RTT::InputPort<double> in_port;
 
   RTT::FlowStatus in_flow;
+
+  RTT::OutputPort<int> out_exec;
+  int var_exec;
 
   double in_var;
 

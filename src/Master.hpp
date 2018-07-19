@@ -12,36 +12,46 @@
 
 #include <boost/lexical_cast.hpp>
 
-class Master : public RTT::TaskContext
+// header for introspection
+#include <rtt-core-extensions/rtt-introspection-base.hpp>
+
+class Master : public cogimon::RTTIntrospectionBase
 {
 public:
   Master(std::string const &name);
 
-  bool configureHook();
-  bool startHook();
-  void updateHook();
-  void stopHook();
-  void cleanupHook();
+  bool configureHookInternal();
+  bool startHookInternal();
+  void updateHookInternal();
+  void stopHookInternal();
+  void cleanupHookInternal();
 
   double getSimulationTime();
   void preparePorts();
   bool portsArePrepared;
 
+  bool treatAsSlaves(bool treatAsSlaves);
+
 private:
-  RTT::InputPort<bool> in_A_port;
-  RTT::InputPort<bool> in_B_port;
+  // RTT::InputPort<bool> in_A_port;
+  // RTT::InputPort<bool> in_B_port;
 
-  RTT::FlowStatus in_A_flow;
-  RTT::FlowStatus in_B_flow;
+  // RTT::FlowStatus in_A_flow;
+  // RTT::FlowStatus in_B_flow;
 
-  RTT::OutputPort<bool> out_nAB_port;
+  RTT::OutputPort<int> out_exec;
+  int var_exec;
 
   bool in_A_var;
   bool in_B_var;
 
   bool out_nAB_var;
 
+  bool treat_as_slaves;
+
   double startTime;
+
+  bool isConfiguredByUser;
 
   std::vector<RTT::TaskContext *> tcList;
   RTT::TaskContext *R;

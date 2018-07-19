@@ -1,0 +1,80 @@
+import("rtt-activity-sandbox")
+import("eigen_typekit")
+import("kdl_typekit")
+import("rst-rt_typekit")
+import("stdint")
+import("rtt-core-extensions")
+
+loadComponent("ir", "cosima::IntrospectionReporter");
+#setActivityOnCPU("ir",0,1,ORO_SCHED_OTHER,7);
+
+loadComponent("M", "Master")
+setActivityOnCPU("M", 1, 5, ORO_SCHED_OTHER, 0)
+M.introspection.enableAllIntrospection(true);
+M.introspection.setCallTraceStorageSize(400);
+M.treatAsSlaves(false)
+
+loadComponent("S", "Sender")
+setActivityOnCPU("S", 0.1, 5, ORO_SCHED_OTHER, 0)
+
+S.introspection.enableAllIntrospection(true);
+S.introspection.setCallTraceStorageSize(400);
+S.introspection.sendAtLeastOncePerXms(1000);
+S.configure()
+
+loadComponent("R", "Receiver")
+#setActivityOnCPU("R", 0.002, 5, ORO_SCHED_OTHER, 0)
+
+R.introspection.enableAllIntrospection(true);
+R.introspection.setCallTraceStorageSize(400);
+R.configure()
+
+var ConnPolicy cp
+connect("S.out_port", "R.in_port", cp)
+
+
+addPeer("M", "S")
+#addPeer("M", "R")
+M.configure()
+
+### ### filelogger ###
+### loadComponent("filereporter", "OCL::FileReporting")
+### setActivityOnCPU("filereporter", 0, 4, ORO_SCHED_OTHER, 1)
+### loadService("filereporter", "marshalling")
+### filereporter.ReportFile="tc_slave_one_master.dat"
+### connectPeers("filereporter","M")
+### #connectPeers("filereporter","S")
+### #connectPeers("filereporter","R")
+### filereporter.reportPort("M", "out_exec")
+### #filereporter.reportPort("S", "out_exec")
+### #filereporter.reportPort("R", "out_exec")
+### filereporter.configure
+### filereporter.start
+### 
+### ### filelogger ###
+### loadComponent("filereporter2", "OCL::FileReporting")
+### setActivityOnCPU("filereporter2", 0, 4, ORO_SCHED_OTHER, 2)
+### loadService("filereporter2", "marshalling")
+### filereporter2.ReportFile="tc_slave_one_master_s.dat"
+### connectPeers("filereporter2","S")
+### filereporter2.reportPort("S", "out_exec")
+### filereporter2.configure
+### filereporter2.start
+### 
+### ### filelogger ###
+### loadComponent("filereporter3", "OCL::FileReporting")
+### setActivityOnCPU("filereporter3", 0, 4, ORO_SCHED_OTHER, 3)
+### loadService("filereporter3", "marshalling")
+### filereporter3.ReportFile="tc_slave_one_master_r.dat"
+### connectPeers("filereporter3","R")
+### filereporter3.reportPort("R", "out_exec")
+### filereporter3.configure
+### filereporter3.start
+
+connectPeers("ir","M")
+connectPeers("ir","S")
+connectPeers("ir","R")
+ir.configure()
+ir.start()
+
+M.start()

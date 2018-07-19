@@ -1,0 +1,44 @@
+import("rtt-activity-sandbox")
+
+loadComponent("M", "Master")
+setActivityOnCPU("M", 1, 5, ORO_SCHED_OTHER, 0)
+
+loadComponent("M2", "Master")
+setActivityOnCPU("M2", 0.1, 5, ORO_SCHED_OTHER, 1)
+
+loadComponent("S", "Sender")
+#setActivityOnCPU("S", 0, 5, ORO_SCHED_OTHER, 0)
+S.configure()
+
+loadComponent("R", "Receiver")
+#setActivityOnCPU("R", 0, 5, ORO_SCHED_OTHER, 1)
+R.configure()
+
+
+var ConnPolicy cp
+connect("S.out_port", "R.in_port", cp)
+
+addPeer("M2", "S")
+addPeer("M", "R")
+M.configure()
+M2.configure()
+
+### filelogger ###
+loadComponent("filereporter", "OCL::FileReporting")
+loadService("filereporter", "marshalling")
+connectPeers("filereporter","M")
+connectPeers("filereporter","M2")
+connectPeers("filereporter","S")
+connectPeers("filereporter","R")
+filereporter.reportPort("M", "out_exec")
+filereporter.reportPort("M2", "out_exec")
+filereporter.reportPort("S", "out_exec")
+filereporter.reportPort("R", "out_exec")
+filereporter.configure
+filereporter.start
+
+M.start()
+M2.start()
+# vielleicht sollte M alle starten? Muessen auf jedenfall gestartet werden sonst passiertt bei update() nichts!
+S.start()
+R.start()

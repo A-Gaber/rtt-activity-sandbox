@@ -10,45 +10,77 @@
 #include <stdio.h>
 #include <rtt/extras/SlaveActivity.hpp>
 
-Master::Master(std::string const &name) : RTT::TaskContext(name), portsArePrepared(false), in_A_var(false), in_B_var(
-																												false),
-										  out_nAB_var(false)
+Master::Master(std::string const &name) : cogimon::RTTIntrospectionBase(name), portsArePrepared(false), in_A_var(false), in_B_var(
+																															 false),
+										  out_nAB_var(false), treat_as_slaves(true), startTime(0.0), isConfiguredByUser(false)
 {
-	startTime = 0.0;
+	this->addOperation("treatAsSlaves", &Master::treatAsSlaves, this);
+	preparePorts();
 }
 
-bool Master::configureHook()
+bool Master::treatAsSlaves(bool treatAsSlaves)
 {
-	std::vector<std::string> peerList = this->getPeerList();
+	if (isConfiguredByUser)
+	{
+		RTT::log(RTT::Error) << "[" << this->getName() << " ] The activity mode can only be changed in a non-configured state of the component." << RTT::endlog();
+		return false;
+	}
+	treat_as_slaves = treatAsSlaves;
+	RTT::log(RTT::Warning) << "[" << this->getName() << " ] treatAsSlaves = " << treat_as_slaves << RTT::endlog();
+	return true;
+}
+
+bool Master::configureHookInternal()
+{
+	tcList.clear();
+	std::vector<std::string>
+		peerList = this->getPeerList();
 	for (auto peerName : peerList)
 	{
 		RTT::TaskContext *new_block = this->getPeer(peerName);
 		if (new_block)
 		{
-			RTT::log(RTT::Warning) << this->getName() << " set SLAVE activity for " << peerName << RTT::endlog();
-			new_block->setActivity(
-				new RTT::extras::SlaveActivity(
-					this->getActivity(),
-					new_block->engine()));
+			if (treat_as_slaves)
+			{
+				RTT::log(RTT::Warning) << this->getName() << " set SLAVE activity for " << peerName << RTT::endlog();
+				new_block->setActivity(
+					new RTT::extras::SlaveActivity(
+						this->getActivity(),
+						new_block->engine()));
+			}
 			tcList.push_back(new_block);
 		}
 	}
 	R = this->getPeer("R");
 	S = this->getPeer("S");
+	isConfiguredByUser = true;
 	return true;
 }
 
-bool Master::startHook()
+bool Master::startHookInternal()
 {
 	startTime = this->getSimulationTime();
-	RTT::log(RTT::Warning) << this->getName() << "started" << RTT::endlog();
+	var_exec = 0;
+	writePort(out_exec, var_exec);
+	RTT::log(RTT::Debug) << this->getName() << "started" << RTT::endlog();
+	if (S) // && treat_as_slaves ?
+	{
+		S->start();
+	}
+	if (R)
+	{
+		R->start();
+	}
 	return true;
 }
 
-void Master::updateHook()
+void Master::updateHookInternal()
 {
-
-	RTT::log(RTT::Warning) << this->getName() << "update start" << RTT::endlog();
+	// var_exec = 0;
+	// out_exec.write(var_exec);
+	var_exec = 1;
+	writePort(out_exec, var_exec);
+	RTT::log(RTT::Debug) << this->getName() << "update start" << RTT::endlog();
 
 	// out_nAB_port.write(!(in_A_var && in_B_var));
 	// for (RTT::TaskContext *tc : tcList)
@@ -57,25 +89,35 @@ void Master::updateHook()
 	// }
 	if (S)
 	{
-		// TODO seems like update() is blocking...!
-		S->update();
+		if (treat_as_slaves)
+		{
+			// TODO seems like update() is blocking...!
+			S->update();
+		}
+		else
+		{
+			// With own Activities and this line below we can have a non-blocking parallel execution
+			// S->trigger();
+			// S->getActivity()->start();
 
-		// With own Activities and this line below we can have a non-blocking parallel execution
-		// S->trigger();
-		// S->getActivity()->start();
-
-		// With own Activities and this line below we can have a sequential execution
-		// S->engine()->activate();
+			// With own Activities and this line below we can have a sequential execution
+			// S->engine()->activate();
+		}
 	}
 	if (R)
 	{
-		R->update();
+		if (treat_as_slaves)
+		{
+			R->update();
+		}
+		else
+		{
+			// With own Activities and this line below we can have a non-blocking parallel execution
+			// R->trigger();
+			// R->getActivity()->start();
 
-		// With own Activities and this line below we can have a non-blocking parallel execution
-		// R->trigger();
-		// R->getActivity()->start();
-
-		// With own Activities and this line below we can have a sequential execution
+			// With own Activities and this line below we can have a sequential execution
+		}
 	}
 	// // In this case it also works if connections are lost!
 	// in_A_flow = in_A_port.read(in_A_var);
@@ -90,34 +132,44 @@ void Master::updateHook()
 	// {
 	// 	in_B_var = false;
 	// }
-	RTT::log(RTT::Warning) << this->getName() << "update end" << RTT::endlog();
+	// var_exec = 1;
+	// out_exec.write(var_exec);
+	var_exec = -1;
+	writePort(out_exec, var_exec);
+	RTT::log(RTT::Debug) << this->getName() << "update end" << RTT::endlog();
 }
 
-void Master::stopHook()
+void Master::stopHookInternal()
 {
 }
 
-void Master::cleanupHook()
+void Master::cleanupHookInternal()
 {
+	isConfiguredByUser = false;
 }
 
 void Master::preparePorts()
 {
-	in_A_port.setName("in_A_port");
-	in_A_port.doc("Input port A");
-	ports()->addPort(in_A_port);
-	in_A_flow = RTT::NoData;
+	// in_A_port.setName("in_A_port");
+	// in_A_port.doc("Input port A");
+	// ports()->addPort(in_A_port);
+	// in_A_flow = RTT::NoData;
 
-	in_B_port.setName("in_B_port");
-	in_B_port.doc("Input port B");
-	ports()->addPort(in_B_port);
-	in_B_flow = RTT::NoData;
+	// in_B_port.setName("in_B_port");
+	// in_B_port.doc("Input port B");
+	// ports()->addPort(in_B_port);
+	// in_B_flow = RTT::NoData;
 
-	out_nAB_var = false;
-	out_nAB_port.setName("out_nAB_port");
-	out_nAB_port.doc("Output port Q");
-	out_nAB_port.setDataSample(!false);
-	ports()->addPort(out_nAB_port);
+	// out_nAB_var = false;
+	// out_nAB_port.setName("out_nAB_port");
+	// out_nAB_port.doc("Output port Q");
+	// out_nAB_port.setDataSample(!false);
+	// ports()->addPort(out_nAB_port);
+
+	var_exec = -5;
+	out_exec.setName("out_exec");
+	out_exec.setDataSample(var_exec);
+	ports()->addPort(out_exec);
 
 	portsArePrepared = true;
 }

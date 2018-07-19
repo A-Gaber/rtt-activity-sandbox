@@ -9,11 +9,11 @@
 
 #include <stdio.h>
 
-Sender::Sender(std::string const &name) : RTT::TaskContext(name), portsArePrepared(false), out_Sender_var(0)
+Sender::Sender(std::string const &name) : cogimon::RTTIntrospectionBase(name), portsArePrepared(false), out_Sender_var(0)
 {
 }
 
-bool Sender::configureHook()
+bool Sender::configureHookInternal()
 {
 	counter = 0;
 	if (!portsArePrepared)
@@ -23,21 +23,27 @@ bool Sender::configureHook()
 	return true;
 }
 
-bool Sender::startHook()
+bool Sender::startHookInternal()
 {
 	startTime = this->getSimulationTime();
-	RTT::log(RTT::Warning) << this->getName() << "started" << RTT::endlog();
+	var_exec = 0;
+	out_exec.write(var_exec);
+	RTT::log(RTT::Debug) << this->getName() << "started" << RTT::endlog();
 	return true;
 }
 
-void Sender::updateHook()
+void Sender::updateHookInternal()
 {
+	// var_exec = 0;
+	// out_exec.write(var_exec);
+	var_exec = 1;
+	out_exec.write(var_exec);
 	// startUpdateTime = getSimulationTime();
-	RTT::log(RTT::Warning)
+	RTT::log(RTT::Debug)
 		<< this->getName() << "update start" << RTT::endlog();
 	// while ((getSimulationTime() - startUpdateTime) < 0.5)
 	// {
-	// 	// RTT::log(RTT::Warning) << this->getName() << " 0.3 >= " << (getSimulationTime() - startUpdateTime) << RTT::endlog();
+	// 	// RTT::log(RTT::Debug) << this->getName() << " 0.3 >= " << (getSimulationTime() - startUpdateTime) << RTT::endlog();
 	// }
 	// out_Sender_var = getSimulationTime();
 	counter++;
@@ -47,15 +53,20 @@ void Sender::updateHook()
 	}
 	out_Sender_var = counter;
 	out_Sender_port.write(out_Sender_var);
-	RTT::log(RTT::Warning) << this->getName() << "   SEND > " << out_Sender_var << RTT::endlog();
-	RTT::log(RTT::Warning) << this->getName() << "update end" << RTT::endlog();
+	RTT::log(RTT::Debug) << this->getName() << "   SEND > " << out_Sender_var << RTT::endlog();
+
+	// var_exec = 1;
+	// out_exec.write(var_exec);
+	var_exec = -1;
+	out_exec.write(var_exec);
+	RTT::log(RTT::Debug) << this->getName() << "update end" << RTT::endlog();
 }
 
-void Sender::stopHook()
+void Sender::stopHookInternal()
 {
 }
 
-void Sender::cleanupHook()
+void Sender::cleanupHookInternal()
 {
 }
 
@@ -66,6 +77,11 @@ void Sender::preparePorts()
 	ports()->addPort(out_Sender_port);
 
 	out_Sender_port.setDataSample(out_Sender_var);
+
+	var_exec = -5;
+	out_exec.setName("out_exec");
+	out_exec.setDataSample(var_exec);
+	ports()->addPort(out_exec);
 
 	portsArePrepared = true;
 }
