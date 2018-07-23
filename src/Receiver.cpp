@@ -41,7 +41,7 @@ void Receiver::updateHookInternal()
 	startUpdateTime = getSimulationTime();
 	RTT::log(RTT::Debug) << this->getName() << "update start" << RTT::endlog();
 
-	in_flow = in_port.read(in_var);
+	in_flow = readPort(in_port, in_var);
 	if (in_flow == RTT::NoData)
 	{
 		RTT::log(RTT::Debug) << this->getName() << "    1 NOO > " << RTT::endlog();
@@ -60,7 +60,7 @@ void Receiver::updateHookInternal()
 		// RTT::log(RTT::Debug) << this->getName() << " 0.3 >= " << (getSimulationTime() - startUpdateTime) << RTT::endlog();
 	}
 
-	in_flow = in_port.read(in_var);
+	in_flow = readPort(in_port, in_var);
 	if (in_flow == RTT::NoData)
 	{
 		RTT::log(RTT::Debug) << this->getName() << "    2 NOO > " << RTT::endlog();

@@ -57,7 +57,8 @@ void Sender::updateHookInternal()
 		counter = 0;
 	}
 	out_Sender_var = counter;
-	out_Sender_port.write(out_Sender_var);
+	writePort(out_Sender_port, out_Sender_var);
+
 	RTT::log(RTT::Debug) << this->getName() << "   SEND > " << out_Sender_var << RTT::endlog();
 
 	// var_exec = 1;

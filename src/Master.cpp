@@ -52,7 +52,15 @@ bool Master::configureHookInternal()
 		}
 	}
 	R = this->getPeer("R");
-	S = this->getPeer("S");
+	if (this->getPeer("S"))
+	{
+		S = this->getPeer("S");
+	}
+	else if (this->getPeer("S2"))
+	{
+		S = this->getPeer("S2");
+	}
+
 	isConfiguredByUser = true;
 	return true;
 }
