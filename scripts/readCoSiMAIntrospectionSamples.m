@@ -1,4 +1,4 @@
-fname = "../build/orocos/rtReport.dat"; 
+fname = "../scripts/results/rtReport-verify-sequential-ms-exeuction.dat"; 
 fid = fopen(fname); 
 raw = fread(fid,inf); 
 str = char(raw'); 
