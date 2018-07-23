@@ -141,6 +141,14 @@ void Master::updateHookInternal()
 
 void Master::stopHookInternal()
 {
+	if (S)
+	{
+		S->stop();
+	}
+	if (R)
+	{
+		R->stop();
+	}
 }
 
 void Master::cleanupHookInternal()

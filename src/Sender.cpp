@@ -38,7 +38,7 @@ void Sender::updateHookInternal()
 	// out_exec.write(var_exec);
 	var_exec = 1;
 	out_exec.write(var_exec);
-	// startUpdateTime = getSimulationTime();
+	startUpdateTime = getSimulationTime();
 	RTT::log(RTT::Debug)
 		<< this->getName() << "update start" << RTT::endlog();
 	// while ((getSimulationTime() - startUpdateTime) < 0.5)
@@ -46,6 +46,11 @@ void Sender::updateHookInternal()
 	// 	// RTT::log(RTT::Debug) << this->getName() << " 0.3 >= " << (getSimulationTime() - startUpdateTime) << RTT::endlog();
 	// }
 	// out_Sender_var = getSimulationTime();
+	while ((getSimulationTime() - startUpdateTime) < 0.2)
+	{
+		// RTT::log(RTT::Debug) << this->getName() << " 0.3 >= " << (getSimulationTime() - startUpdateTime) << RTT::endlog();
+	}
+
 	counter++;
 	if (counter >= 10)
 	{

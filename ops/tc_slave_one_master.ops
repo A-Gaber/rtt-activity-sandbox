@@ -6,20 +6,23 @@ import("stdint")
 import("rtt-core-extensions")
 
 loadComponent("ir", "cosima::IntrospectionReporter");
-#setActivityOnCPU("ir",0,1,ORO_SCHED_OTHER,7);
+setActivityOnCPU("ir",0,1,ORO_SCHED_OTHER,7);
 
 loadComponent("M", "Master")
 setActivityOnCPU("M", 1, 5, ORO_SCHED_OTHER, 0)
 M.introspection.enableAllIntrospection(true);
 M.introspection.setCallTraceStorageSize(400);
-M.treatAsSlaves(false)
+M.introspection.sendAtLeastOncePerXms(1000);
+M.introspection.enableAutoWriteExecutionInformation(false);
+M.treatAsSlaves(true)
 
 loadComponent("S", "Sender")
-setActivityOnCPU("S", 0.1, 5, ORO_SCHED_OTHER, 0)
+#setActivityOnCPU("S", 0.1, 5, ORO_SCHED_OTHER, 0)
 
 S.introspection.enableAllIntrospection(true);
 S.introspection.setCallTraceStorageSize(400);
 S.introspection.sendAtLeastOncePerXms(1000);
+S.introspection.enableAutoWriteExecutionInformation(false);
 S.configure()
 
 loadComponent("R", "Receiver")
@@ -27,6 +30,8 @@ loadComponent("R", "Receiver")
 
 R.introspection.enableAllIntrospection(true);
 R.introspection.setCallTraceStorageSize(400);
+R.introspection.sendAtLeastOncePerXms(1000);
+R.introspection.enableAutoWriteExecutionInformation(false);
 R.configure()
 
 var ConnPolicy cp
@@ -34,7 +39,7 @@ connect("S.out_port", "R.in_port", cp)
 
 
 addPeer("M", "S")
-#addPeer("M", "R")
+addPeer("M", "R")
 M.configure()
 
 ### ### filelogger ###
