@@ -1,4 +1,4 @@
-fname = "../build/orocos/rtReport.dat"; 
+fname = "../scripts/results/rtReport-verify-message-passing-ms.dat"; 
 fid = fopen(fname); 
 raw = fread(fid,inf); 
 str = char(raw'); 
